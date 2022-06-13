@@ -4,6 +4,8 @@ namespace TeamUp.Pages.Admin.Games.Models;
 
 public class PositionModel
 {
+    public int? Id { get; set; }
+
     public int GameId { get; set; }
 
     [Required]

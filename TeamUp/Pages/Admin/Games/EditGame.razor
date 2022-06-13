@@ -3,12 +3,11 @@
 @using TeamUp.Shared.Components.Forms
 @using TeamUp.Shared.Components.Forms.Models
 @using TeamUp.Pages.Admin.Games.Models
+@using TeamUp.Data.Models
 @attribute [Authorize(Roles = "Admin")]
 @inject NavigationManager NavigationManager
 @inject GameService GameService
-<h3><a class="header-nav-item" @onclick="@(() => NavigationManager.NavigateTo("admin"))">Admin</a> > <a class="header-nav-item" @onclick="@(() => NavigationManager.NavigateTo("admin/games"))">Games</a> > @_game!.Name</h3>
-
-
+@inject PositionService PositionService
 @if (!_loaded)
 {
     <p>
@@ -23,25 +22,50 @@ else if (_game is null)
 }
 else
 {
+    <h3><a class="header-nav-item" @onclick="@(() => NavigationManager.NavigateTo("admin"))">Admin</a> > <a class="header-nav-item" @onclick="@(() => NavigationManager.NavigateTo("admin/games"))">Games</a> > @_game!.Name</h3>
+
     <GameForm Game="@_game"></GameForm>
     
     <h4>Positions</h4>
     
-    <EditForm Model="@_positionModel" OnValidSubmit="@OnPositionSubmit">
-        <div class="mb-3">
-            <DataAnnotationsValidator/>
-            <ValidationSummary/>    
-        </div>
+    <button class="btn btn-primary" @onclick="AddNewPosition"><span class="oi oi-plus" aria-hidden="true"></span> New</button>
+    
+    @if (_addNewPosition)
+    {
+        <EditForm Model="@_positionModel" OnValidSubmit="@OnPositionSubmit">
+            <div class="mb-3">
+                <DataAnnotationsValidator/>
+                <ValidationSummary/>    
+            </div>
 
-        <div class="mb-3">
-            <label for="name" class="form-label">Name</label>
-            <InputText class="form-control" id="name" @bind-Value="_positionModel.Name"></InputText>
-        </div>
+            <div class="mb-3">
+                <label for="name" class="form-label">Name</label>
+                <InputText class="form-control" id="name" @bind-Value="_positionModel.Name"></InputText>
+            </div>
 
-        <div class="mb-3">
-            <button disabled="@_positionSaving" type="submit" class="btn btn-primary">Save</button>
-        </div>
-    </EditForm>
+            <div class="mb-3">
+                <button disabled="@_positionSaving" type="submit" class="btn btn-primary">Save</button>
+            </div>
+        </EditForm>
+    }
+    
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+            @foreach (var position in _positions)
+            {
+                <tr>
+                    <td>@position.Name</td>
+                    <td>blabla</td>
+                </tr>
+            }
+        </tbody>
+    </table>
     
     <h4>Ranks</h4>
 }
@@ -51,8 +75,10 @@ else
     [Parameter]
     public int Id { get; set; }
 
+    private List<Position> _positions = null!;
+
     private GameModel? _game;
-    private PositionModel _positionModel;
+    private PositionModel _positionModel = null!;
     private bool _addNewPosition;
     private bool _positionSaving;
     private RankModel _rankModel;
@@ -66,6 +92,8 @@ else
 
         var game = await GameService.GetByIdAsync(Id);
 
+        _positions = await PositionService.GetByGameIdAsync(Id);
+
         if (game != null)
         {
             _game = new GameModel { Id = Id, Name = game.Name, PlatformIds = game.GamePlatforms.Select(x => x.PlatformId).ToArray() };
@@ -74,9 +102,20 @@ else
         _loaded = true;
     }
 
-    private async Task OnPositionSubmit()
+    private void AddNewPosition()
     {
-        _addNewPosition = false;
+        _positionModel = new PositionModel { GameId = Id };
+        _addNewPosition = !_addNewPosition;
     }
 
+    private async Task OnPositionSubmit()
+    {
+        _positionSaving = true;
+
+        await PositionService.UpdateAsync(_positionModel);
+        _positions = await PositionService.GetByGameIdAsync(Id);
+
+        _addNewPosition = false;
+        _positionSaving = false;
+    }
 }
