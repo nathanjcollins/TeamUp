@@ -27,7 +27,7 @@ else
     
     <h4>Positions</h4>
     
-    <EditForm Model="@_positionModel" OnValidSubmit="">
+    <EditForm Model="@_positionModel" OnValidSubmit="@OnPositionSubmit">
         <div class="mb-3">
             <DataAnnotationsValidator/>
             <ValidationSummary/>    
