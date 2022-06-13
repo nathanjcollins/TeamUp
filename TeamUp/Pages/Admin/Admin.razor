@@ -1,0 +1,43 @@
+@page "/admin"
+@using TeamUp.Services
+@attribute [Authorize(Roles = "Admin")]
+@inject GameService GameService
+@inject NavigationManager NavigationManager
+@inject PlatformService PlatformService
+<h3>Admin</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th></th>
+            <th>Count</th>
+            <th></th>
+        </tr>
+        </thead>
+    <tbody>
+        <tr>
+            <td>Platforms</td>
+            <td>@_platformCount</td>
+            <td><button class="btn btn-primary" @onclick="@(() => NavigationManager.NavigateTo("admin/platforms"))">View</button></td>
+        </tr>
+        <tr>
+            <td>Games</td>
+            <td>@_gameCount</td>
+            <td><button class="btn btn-primary" @onclick="@(() => NavigationManager.NavigateTo("admin/games"))">View</button></td>
+        </tr>
+    </tbody>
+</table>
+
+@code {
+    private string _platformCount = "...";
+    public string _gameCount = "...";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        _platformCount = (await PlatformService.CountAsync()).ToString()!;
+        _gameCount = (await GameService.CountAsync()).ToString()!;
+    }
+
+}

@@ -1,0 +1,43 @@
+@page "/admin/platform/{id:int}"
+@using TeamUp.Services
+@using TeamUp.Shared.Components.Forms
+@using TeamUp.Shared.Components.Forms.Models
+@attribute [Authorize(Roles = "Admin")]
+@inject NavigationManager NavigationManager
+@inject PlatformService PlatformService
+<h3><a class="header-nav-item" @onclick="@(() => NavigationManager.NavigateTo("admin"))">Admin</a> > <a class="header-nav-item" @onclick="@(() => NavigationManager.NavigateTo("admin/platforms"))">Platforms</a> > @_platform!.Name</h3>
+
+
+@if (!_loaded)
+{
+    <p><em>Loading...</em></p>
+} else if (_platform is null)
+{
+    <p><em>Platform not found</em></p>
+}
+else
+{
+    <PlatformForm Platform="@_platform"></PlatformForm>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private PlatformModel? _platform;
+    private bool _loaded;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        var platform = await PlatformService.GetByIdAsync(Id);
+
+        if (platform != null)
+        {
+            _platform = new PlatformModel { Id = Id, Name = platform.Name };
+        }
+    
+        _loaded = true;
+    }
+}

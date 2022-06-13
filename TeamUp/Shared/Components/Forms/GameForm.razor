@@ -1,0 +1,57 @@
+@using TeamUp.Shared.Components.Forms.Models
+@using TeamUp.Services
+@using TeamUp.Data.Models
+@inject GameService GameService
+@inject PlatformService PlatformService
+
+<EditForm Model="@Game" OnValidSubmit="@OnSubmit">
+    <div class="mb-3">
+        <DataAnnotationsValidator/>
+        <ValidationSummary/>    
+    </div>
+    
+    <div class="mb-3">
+        <label for="name" class="form-label">Name</label>
+        <InputText class="form-control" id="name" @bind-Value="Game.Name"></InputText>
+    </div>
+    
+    <div class="mb-3">
+        <label for="platform" class="form-label">Platform</label>
+        <InputSelect class="form-select" id="platform" @bind-Value="Game!.PlatformIds">
+            @foreach (var platform in _platforms)
+            {
+                <option value="@platform.Id">@platform.Name</option>
+            }
+        </InputSelect>
+    </div>
+
+    <div class="mb-3">
+        <button disabled="@_saving" type="submit" class="btn btn-primary">Save</button>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter] public GameModel? Game { get; set; }
+    [Parameter] public EventCallback<Game> OnSaved { get; set; }
+
+    private bool _saving;
+    private List<Platform> _platforms = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        _platforms = await PlatformService.GetAllAsync();
+        
+        Game ??= new GameModel { PlatformIds = new[] { _platforms.First().Id }};
+    }
+
+    private async Task OnSubmit()
+    {
+        _saving = true;
+
+        var game = await GameService.UpdateAsync(Game!);
+
+        await OnSaved.InvokeAsync(game);
+    }
+}

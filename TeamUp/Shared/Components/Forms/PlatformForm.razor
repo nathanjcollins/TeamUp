@@ -1,0 +1,43 @@
+@using TeamUp.Shared.Components.Forms.Models
+@using TeamUp.Services
+@using TeamUp.Data.Models
+@inject PlatformService PlatformService
+
+<EditForm Model="@Platform" OnValidSubmit="@OnSubmit">
+    <div class="mb-3">
+        <DataAnnotationsValidator/>
+        <ValidationSummary/>    
+    </div>
+    
+    <div class="mb-3">
+        <label for="name" class="form-label">Name</label>
+        <InputText class="form-control" id="name" @bind-Value="Platform.Name"></InputText>
+    </div>
+
+    <div class="mb-3">
+        <button disabled="@_saving" type="submit" class="btn btn-primary">Save</button>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter] public PlatformModel? Platform { get; set; }
+    [Parameter] public EventCallback<Platform> OnSaved { get; set; }
+
+    private bool _saving;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        Platform ??= new PlatformModel();
+    }
+
+    private async Task OnSubmit()
+    {
+        _saving = true;
+
+        var platform = await PlatformService.UpdateAsync(Platform!);
+
+        await OnSaved.InvokeAsync(platform);
+    }
+}

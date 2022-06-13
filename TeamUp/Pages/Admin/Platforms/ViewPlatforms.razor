@@ -1,0 +1,95 @@
+@page "/admin/platforms"
+@using TeamUp.Services
+@using TeamUp.Data.Models
+@using TeamUp.Shared.Components.Forms
+@attribute [Authorize(Roles = "Admin")]
+@inject PlatformService PlatformService
+@inject NavigationManager NavigationManager
+<h3><a class="header-nav-item" @onclick="@(() => NavigationManager.NavigateTo("admin"))">Admin</a> > Platforms</h3>
+
+@if (_platforms == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <button class="btn btn-primary" @onclick="AddNewPlatform"><span class="oi oi-plus" aria-hidden="true"></span> New</button>
+
+    if (_addNew)
+    {
+        <PlatformForm OnSaved="@OnPlatformAdded"></PlatformForm>
+    }
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var platform in _platforms)
+            {
+                <tr>
+                    <td>@platform.Id</td>
+                    <td>@platform.Name</td>
+                    <td>
+                        <button class="btn btn-primary me-2" @onclick="@(() => NavigateToPlatform(platform.Id))">Edit</button>
+                        @if (platform.IsDeleted)
+                        {
+                            <button class="btn btn-secondary" @onclick="@(() => UndoDeletePlatformAsync(platform))">Undo</button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-danger" @onclick="@(() => DeletePlatformAsync(platform))">Delete</button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Platform>? _platforms;
+
+    private bool _addNew;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        _platforms = await PlatformService.GetAllAsync();
+    }
+
+    private async Task DeletePlatformAsync(Platform platform)
+    {
+        await PlatformService.DeleteByIdAsync(platform.Id);
+
+        platform.IsDeleted = true;
+    }
+    
+    private async Task UndoDeletePlatformAsync(Platform platform)
+    {
+        await PlatformService.UndoDeleteByIdAsync(platform.Id);
+
+        platform.IsDeleted = false;
+    }
+
+    private void NavigateToPlatform(int id)
+    {
+        NavigationManager.NavigateTo($"admin/platform/{id}");
+    }
+
+    private void AddNewPlatform()
+    {
+        _addNew = !_addNew;
+    }
+
+    private void OnPlatformAdded(Platform platform)
+    {
+        _platforms!.Add(platform);
+        _addNew = false;
+    }
+}

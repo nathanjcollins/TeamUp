@@ -1,0 +1,82 @@
+@page "/admin/game/{id:int}"
+@using TeamUp.Services
+@using TeamUp.Shared.Components.Forms
+@using TeamUp.Shared.Components.Forms.Models
+@using TeamUp.Pages.Admin.Games.Models
+@attribute [Authorize(Roles = "Admin")]
+@inject NavigationManager NavigationManager
+@inject GameService GameService
+<h3><a class="header-nav-item" @onclick="@(() => NavigationManager.NavigateTo("admin"))">Admin</a> > <a class="header-nav-item" @onclick="@(() => NavigationManager.NavigateTo("admin/games"))">Games</a> > @_game!.Name</h3>
+
+
+@if (!_loaded)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else if (_game is null)
+{
+    <p>
+        <em>Game not found</em>
+    </p>
+}
+else
+{
+    <GameForm Game="@_game"></GameForm>
+    
+    <h4>Positions</h4>
+    
+    <EditForm Model="@_positionModel" OnValidSubmit="">
+        <div class="mb-3">
+            <DataAnnotationsValidator/>
+            <ValidationSummary/>    
+        </div>
+
+        <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <InputText class="form-control" id="name" @bind-Value="_positionModel.Name"></InputText>
+        </div>
+
+        <div class="mb-3">
+            <button disabled="@_positionSaving" type="submit" class="btn btn-primary">Save</button>
+        </div>
+    </EditForm>
+    
+    <h4>Ranks</h4>
+}
+
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+
+    private GameModel? _game;
+    private PositionModel _positionModel;
+    private bool _addNewPosition;
+    private bool _positionSaving;
+    private RankModel _rankModel;
+    private bool _addNewRank;
+    private bool _rankSaving;
+    private bool _loaded;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        var game = await GameService.GetByIdAsync(Id);
+
+        if (game != null)
+        {
+            _game = new GameModel { Id = Id, Name = game.Name, PlatformIds = game.GamePlatforms.Select(x => x.PlatformId).ToArray() };
+        }
+
+        _loaded = true;
+    }
+
+    private async Task OnPositionSubmit()
+    {
+        _addNewPosition = false;
+    }
+
+}
