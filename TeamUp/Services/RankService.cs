@@ -6,49 +6,49 @@ using TeamUp.Pages.Admin.Games.Models;
 
 namespace TeamUp.Services;
 
-public class PositionService
+public class RankService
 {
     private readonly IMemoryCache _cache;
     private readonly ApplicationDbContext _dbContext;
 
-    public PositionService(IMemoryCache cache, ApplicationDbContext dbContext)
+    public RankService(IMemoryCache cache, ApplicationDbContext dbContext)
     {
         _cache = cache;
         _dbContext = dbContext;
     }
 
-    public async Task<List<Position>> GetByGameIdAsync(int gameId)
+    public async Task<List<Rank>> GetByGameIdAsync(int gameId)
     {
         return (await GetAllAsync())
             .Where(x => x.GameId == gameId)
             .ToList();
     }
 
-    public async Task<Position> UpdateAsync(PositionModel positionModel)
+    public async Task<Rank> UpdateAsync(RankModel rankModel)
     {
-        var position = positionModel.Id.HasValue
-            ? (await GetAllAsync()).Single(x => x.Id == positionModel.Id.Value)
-            : new Position { GameId = positionModel.GameId };
+        var rank = rankModel.Id.HasValue
+            ? (await GetAllAsync()).Single(x => x.Id == rankModel.Id.Value)
+            : new Rank { GameId = rankModel.GameId };
 
-        position.Name = positionModel.Name;
+        rank.Name = rankModel.Name;
 
-        _dbContext.Update(position);
+        _dbContext.Update(rank);
         await _dbContext.SaveChangesAsync();
         
         InvalidateCache();
 
-        return position;
+        return rank;
     }
 
-    private async Task<List<Position>> GetAllAsync()
+    private async Task<List<Rank>> GetAllAsync()
     {
-        if (!_cache.TryGetValue(CacheKeys.Positions, out List<Position>? cacheValue))
+        if (!_cache.TryGetValue(CacheKeys.Ranks, out List<Rank>? cacheValue))
         {
-            cacheValue = await _dbContext.Positions
+            cacheValue = await _dbContext.Ranks
                 .Where(x => !x.IsDeleted)
                 .ToListAsync();
 
-            _cache.Set(CacheKeys.Positions, cacheValue);
+            _cache.Set(CacheKeys.Ranks, cacheValue);
         }
 
         return cacheValue!;
@@ -56,16 +56,16 @@ public class PositionService
     
     public async Task DeleteByIdAsync(int id)
     {
-        var position = (await GetAllAsync()).Single(x => x.Id == id);
+        var rank = (await GetAllAsync()).Single(x => x.Id == id);
 
-        if (position is null)
+        if (rank is null)
         {
             throw new ArgumentException(null, nameof(id));
         }
 
-        position.IsDeleted = true;
+        rank.IsDeleted = true;
 
-        _dbContext.Update(position);
+        _dbContext.Update(rank);
         await _dbContext.SaveChangesAsync();
 
         InvalidateCache();
@@ -73,16 +73,16 @@ public class PositionService
 
     public async Task UndoDeleteByIdAsync(int id)
     {
-        var position = await _dbContext.Positions.SingleOrDefaultAsync(x => x.Id == id);
+        var rank = await _dbContext.Ranks.SingleOrDefaultAsync(x => x.Id == id);
 
-        if (position is null)
+        if (rank is null)
         {
             throw new ArgumentException(null, nameof(id));
         }
 
-        position.IsDeleted = false;
+        rank.IsDeleted = false;
 
-        _dbContext.Update(position);
+        _dbContext.Update(rank);
         await _dbContext.SaveChangesAsync();
         
         InvalidateCache();
@@ -90,6 +90,6 @@ public class PositionService
 
     private void InvalidateCache()
     {
-        _cache.Remove(CacheKeys.Positions);
+        _cache.Remove(CacheKeys.Ranks);
     }
 }

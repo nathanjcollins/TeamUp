@@ -21,6 +21,7 @@ builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuth
 builder.Services.AddScoped<PlatformService>();
 builder.Services.AddScoped<GameService>();
 builder.Services.AddScoped<PositionService>();
+builder.Services.AddScoped<RankService>();
 
 var app = builder.Build();
 
@@ -48,5 +49,13 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    var context = services.GetRequiredService<ApplicationDbContext>();    
+    context.Database.Migrate();
+}
 
 app.Run();

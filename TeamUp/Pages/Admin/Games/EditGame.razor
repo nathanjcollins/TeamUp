@@ -8,6 +8,7 @@
 @inject NavigationManager NavigationManager
 @inject GameService GameService
 @inject PositionService PositionService
+@inject RankService RankService
 @if (!_loaded)
 {
     <p>
@@ -61,13 +62,72 @@ else
             {
                 <tr>
                     <td>@position.Name</td>
-                    <td>blabla</td>
+                    <td>
+                        @* <button class="btn btn-primary me-2" @onclick="@(() => NavigateToGame(game.Id))">Edit</button> *@
+                        @if (position.IsDeleted)
+                        {
+                            <button class="btn btn-secondary" @onclick="@(() => UndoDeletePositionAsync(position))">Undo</button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-danger" @onclick="@(() => DeletePositionAsync(position))">Delete</button>
+                        }
+                    </td>
                 </tr>
             }
         </tbody>
     </table>
     
     <h4>Ranks</h4>
+    
+    <button class="btn btn-primary" @onclick="AddNewRank"><span class="oi oi-plus" aria-hidden="true"></span> New</button>
+    
+    @if (_addNewRank)
+    {
+        <EditForm Model="@_rankModel" OnValidSubmit="@OnRankSubmit">
+            <div class="mb-3">
+                <DataAnnotationsValidator/>
+                <ValidationSummary/>    
+            </div>
+
+            <div class="mb-3">
+                <label for="name" class="form-label">Name</label>
+                <InputText class="form-control" id="name" @bind-Value="_rankModel.Name"></InputText>
+            </div>
+
+            <div class="mb-3">
+                <button disabled="@_rankSaving" type="submit" class="btn btn-primary">Save</button>
+            </div>
+        </EditForm>
+    }
+    
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var rank in _ranks)
+        {
+            <tr>
+                <td>@rank.Name</td>
+                <td>
+                    @* <button class="btn btn-primary me-2" @onclick="@(() => NavigateToGame(game.Id))">Edit</button> *@
+                    @if (rank.IsDeleted)
+                    {
+                        <button class="btn btn-secondary" @onclick="@(() => UndoDeleteRankAsync(rank))">Undo</button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-danger" @onclick="@(() => DeleteRankAsync(rank))">Delete</button>
+                    }
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
 }
 
 @code {
@@ -76,12 +136,13 @@ else
     public int Id { get; set; }
 
     private List<Position> _positions = null!;
+    private List<Rank> _ranks = null!;
 
     private GameModel? _game;
     private PositionModel _positionModel = null!;
     private bool _addNewPosition;
     private bool _positionSaving;
-    private RankModel _rankModel;
+    private RankModel _rankModel = null!;
     private bool _addNewRank;
     private bool _rankSaving;
     private bool _loaded;
@@ -93,6 +154,7 @@ else
         var game = await GameService.GetByIdAsync(Id);
 
         _positions = await PositionService.GetByGameIdAsync(Id);
+        _ranks = await RankService.GetByGameIdAsync(Id);
 
         if (game != null)
         {
@@ -117,5 +179,50 @@ else
 
         _addNewPosition = false;
         _positionSaving = false;
+    }
+
+    private async Task DeletePositionAsync(Position position)
+    {
+        await PositionService.DeleteByIdAsync(position.Id);
+
+        position.IsDeleted = true;
+    }
+    
+    private async Task UndoDeletePositionAsync(Position position)
+    {
+        await PositionService.UndoDeleteByIdAsync(position.Id);
+
+        position.IsDeleted = false;
+    }
+    
+    private void AddNewRank()
+    {
+        _rankModel = new RankModel { GameId = Id };
+        _addNewRank = !_addNewRank;
+    }
+
+    private async Task OnRankSubmit()
+    {
+        _rankSaving = true;
+
+        await RankService.UpdateAsync(_rankModel);
+        _ranks = await RankService.GetByGameIdAsync(Id);
+
+        _addNewRank = false;
+        _rankSaving = false;
+    }
+
+    private async Task DeleteRankAsync(Rank rank)
+    {
+        await RankService.DeleteByIdAsync(rank.Id);
+
+        rank.IsDeleted = true;
+    }
+    
+    private async Task UndoDeleteRankAsync(Rank rank)
+    {
+        await RankService.UndoDeleteByIdAsync(rank.Id);
+
+        rank.IsDeleted = false;
     }
 }
