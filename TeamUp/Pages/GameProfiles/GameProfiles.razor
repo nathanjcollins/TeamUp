@@ -1,6 +1,28 @@
 @page "/gameprofiles"
+@using System.Security.Claims
 <h3>GameProfiles</h3>
 
+<p>@_userId</p>
+
+@foreach (var claim in _user.Claims)
+{
+    <p>@claim.Type: @claim.Value</p>
+}
+
 @code {
-    
+    [CascadingParameter]
+    private Task<AuthenticationState> _authenticationStateTask { get; set; } = null!;
+
+    private ClaimsPrincipal _user { get; set; } = null!;
+    private string? _userId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        _user = (await _authenticationStateTask).User;
+        _userId = _user.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+
+    }
+
 }

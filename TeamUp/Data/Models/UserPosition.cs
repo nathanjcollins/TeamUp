@@ -6,7 +6,7 @@ namespace TeamUp.Data.Models;
 public class UserPosition : BaseLinkerEntity
 {
     [ForeignKey("AspNetUser")]
-    public int UserId { get; set; }
+    public string UserId { get; set; } = null!;
     public virtual IdentityUser User { get; set; } = null!;
 
     [ForeignKey("Position")]

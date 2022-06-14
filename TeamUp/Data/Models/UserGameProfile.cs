@@ -10,7 +10,7 @@ public class UserGameProfile : BaseEntity
     public virtual Rank? Rank { get; set; }
     
     [ForeignKey("AspNetUser")]
-    public int UserId { get; set; }
+    public string UserId { get; set; } = null!;
     public virtual IdentityUser User { get; set; } = null!;
     
     public virtual ICollection<Position>? Positions { get; set; } = null!;
