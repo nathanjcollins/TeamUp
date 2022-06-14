@@ -1,0 +1,38 @@
+@page "/gameprofile/{id:int}"
+@using TeamUp.Data.Models
+@using TeamUp.Services
+@inject UserGameProfileService UserGameProfileService
+
+@if (!_loaded)
+{
+    <Spinner></Spinner>
+}
+else if (_profile is null)
+{
+    <p>
+        <em>Profile not found</em>
+    </p>
+}
+else
+{
+    <p>bla</p>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private UserGameProfile? _profile;
+
+    private bool _loaded;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        _profile = await UserGameProfileService.GetByIdAsync(Id);
+
+        _loaded = true;
+    }
+
+}

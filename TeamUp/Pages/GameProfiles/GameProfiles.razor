@@ -1,12 +1,26 @@
 @page "/gameprofiles"
 @using System.Security.Claims
-<h3>GameProfiles</h3>
+@using TeamUp.Data.Models
+@using TeamUp.Services
+@inject UserGameProfileService UserGameProfileService
+<h3>Game Profiles</h3>
 
-<p>@_userId</p>
-
-@foreach (var claim in _user.Claims)
+@if(!_loaded)
 {
-    <p>@claim.Type: @claim.Value</p>
+    <Spinner></Spinner>
+}
+else
+{
+    @foreach (var profile in _profiles)
+    {
+        <div class="card mb-2">
+            <div class="card-body">
+                <h5 class="card-title">@profile.UserGameProfilePositions!.First().Position.Game.Name</h5>
+                <h6 class="card-subtitle mb-2">@profile.Rank!.Name</h6>
+                <p class="card-text">@string.Join(", ", profile.UserGameProfilePositions!.SelectMany(x => x.Position.Name))</p>
+            </div>
+        </div>
+    } 
 }
 
 @code {
@@ -14,15 +28,22 @@
     private Task<AuthenticationState> _authenticationStateTask { get; set; } = null!;
 
     private ClaimsPrincipal _user { get; set; } = null!;
-    private string? _userId { get; set; }
+    private string _userId { get; set; } = null!;
+
+    private List<UserGameProfile> _profiles { get; set; } = null!;
+
+    private bool _loaded = false;
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
 
         _user = (await _authenticationStateTask).User;
-        _userId = _user.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+        _userId = _user.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)!.Value;
 
+        _profiles = await UserGameProfileService.GetGameProfilesByUserIdAsync(_userId);
+
+        _loaded = true;
     }
 
 }

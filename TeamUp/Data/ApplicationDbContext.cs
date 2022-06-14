@@ -12,7 +12,7 @@ namespace TeamUp.Data
         public DbSet<Position> Positions { get; set; } = null!;
         public DbSet<Rank> Ranks { get; set; } = null!;
         public DbSet<UserGameProfile> UserGameProfiles { get; set; } = null!;
-        public DbSet<UserPosition> UserPositions { get; set; } = null!;
+        public DbSet<UserGameProfilePosition> UserGameProfilePositions { get; set; } = null!;
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

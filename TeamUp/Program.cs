@@ -22,6 +22,7 @@ builder.Services.AddScoped<PlatformService>();
 builder.Services.AddScoped<GameService>();
 builder.Services.AddScoped<PositionService>();
 builder.Services.AddScoped<RankService>();
+builder.Services.AddScoped<UserGameProfileService>();
 
 var app = builder.Build();
 

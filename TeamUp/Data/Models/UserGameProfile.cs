@@ -13,5 +13,5 @@ public class UserGameProfile : BaseEntity
     public string UserId { get; set; } = null!;
     public virtual IdentityUser User { get; set; } = null!;
     
-    public virtual ICollection<Position>? Positions { get; set; } = null!;
+    public virtual ICollection<UserGameProfilePosition>? UserGameProfilePositions { get; set; } = null!;
 }

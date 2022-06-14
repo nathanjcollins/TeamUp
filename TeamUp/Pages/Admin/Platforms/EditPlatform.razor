@@ -1,17 +1,15 @@
 @page "/admin/platform/{id:int}"
 @using TeamUp.Services
-@using TeamUp.Shared.Components.Forms
-@using TeamUp.Shared.Components.Forms.Models
 @attribute [Authorize(Roles = "Admin")]
 @inject NavigationManager NavigationManager
 @inject PlatformService PlatformService
 <h3><a class="header-nav-item" @onclick="@(() => NavigationManager.NavigateTo("admin"))">Admin</a> > <a class="header-nav-item" @onclick="@(() => NavigationManager.NavigateTo("admin/platforms"))">Platforms</a> > @_platform!.Name</h3>
 
-
 @if (!_loaded)
 {
-    <p><em>Loading...</em></p>
-} else if (_platform is null)
+    <Spinner></Spinner>
+}
+else if (_platform is null)
 {
     <p><em>Platform not found</em></p>
 }

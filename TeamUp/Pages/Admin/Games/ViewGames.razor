@@ -1,7 +1,6 @@
 @page "/admin/games"
 @using TeamUp.Services
 @using TeamUp.Data.Models
-@using TeamUp.Shared.Components.Forms
 @attribute [Authorize(Roles = "Admin")]
 @inject GameService GameService
 @inject NavigationManager NavigationManager
@@ -9,7 +8,7 @@
 
 @if (_games == null)
 {
-    <p><em>Loading...</em></p>
+    <Spinner></Spinner>
 }
 else
 {
