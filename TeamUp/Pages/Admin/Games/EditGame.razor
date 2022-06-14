@@ -27,107 +27,120 @@ else
 
     <GameForm Game="@_game"></GameForm>
     
-    <h4>Positions</h4>
-    
-    <button class="btn btn-primary" @onclick="AddNewPosition"><span class="oi oi-plus" aria-hidden="true"></span> New</button>
-    
-    @if (_addNewPosition)
-    {
-        <EditForm Model="@_positionModel" OnValidSubmit="@OnPositionSubmit">
-            <div class="mb-3">
-                <DataAnnotationsValidator/>
-                <ValidationSummary/>    
-            </div>
-
-            <div class="mb-3">
-                <label for="name" class="form-label">Name</label>
-                <InputText class="form-control" id="name" @bind-Value="_positionModel.Name"></InputText>
-            </div>
-
-            <div class="mb-3">
-                <button disabled="@_positionSaving" type="submit" class="btn btn-primary">Save</button>
-            </div>
-        </EditForm>
-    }
-    
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Name</th>
-            <th></th>
-        </tr>
-        </thead>
-        <tbody>
-            @foreach (var position in _positions)
+    <div class="card mb-2">
+        <div class="card-body">
+            <h4 class="card-title">Positions</h4>
+            
+            <button class="btn btn-primary" @onclick="AddNewPosition"><span class="oi oi-plus" aria-hidden="true"></span> New</button>
+            
+            @if (_addNewPosition)
             {
-                <tr>
-                    <td>@position.Name</td>
-                    <td>
-                        @* <button class="btn btn-primary me-2" @onclick="@(() => NavigateToGame(game.Id))">Edit</button> *@
-                        @if (position.IsDeleted)
-                        {
-                            <button class="btn btn-secondary" @onclick="@(() => UndoDeletePositionAsync(position))">Undo</button>
-                        }
-                        else
-                        {
-                            <button class="btn btn-danger" @onclick="@(() => DeletePositionAsync(position))">Delete</button>
-                        }
-                    </td>
-                </tr>
+                <EditForm Model="@_positionModel" OnValidSubmit="@OnPositionSubmit">
+                    <div class="mb-3">
+                        <DataAnnotationsValidator/>
+                        <ValidationSummary/>    
+                    </div>
+        
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Name</label>
+                        <InputText class="form-control" id="name" @bind-Value="_positionModel.Name"></InputText>
+                    </div>
+        
+                    <div class="mb-3">
+                        <button disabled="@_positionSaving" type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </EditForm>
             }
-        </tbody>
-    </table>
+            
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var position in _positions)
+                {
+                    <tr>
+                        <td>@position.Name</td>
+                        <td>
+                            @* <button class="btn btn-primary me-2" @onclick="@(() => NavigateToGame(game.Id))">Edit</button> *@
+                            @if (position.IsDeleted)
+                            {
+                                <button class="btn btn-secondary" @onclick="@(() => UndoDeletePositionAsync(position))">Undo</button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-danger" @onclick="@(() => DeletePositionAsync(position))">Delete</button>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
     
-    <h4>Ranks</h4>
     
-    <button class="btn btn-primary" @onclick="AddNewRank"><span class="oi oi-plus" aria-hidden="true"></span> New</button>
     
-    @if (_addNewRank)
-    {
-        <EditForm Model="@_rankModel" OnValidSubmit="@OnRankSubmit">
-            <div class="mb-3">
-                <DataAnnotationsValidator/>
-                <ValidationSummary/>    
-            </div>
-
-            <div class="mb-3">
-                <label for="name" class="form-label">Name</label>
-                <InputText class="form-control" id="name" @bind-Value="_rankModel.Name"></InputText>
-            </div>
-
-            <div class="mb-3">
-                <button disabled="@_rankSaving" type="submit" class="btn btn-primary">Save</button>
-            </div>
-        </EditForm>
-    }
+    <div class="card mb-2">
+        <div class="card-body">
+            <h4 class="card-title">Ranks</h4>
+            <button class="btn btn-primary" @onclick="AddNewRank"><span class="oi oi-plus" aria-hidden="true"></span> New</button>
+            
+            @if (_addNewRank)
+            {
+                <EditForm Model="@_rankModel" OnValidSubmit="@OnRankSubmit">
+                    <div class="mb-3">
+                        <DataAnnotationsValidator/>
+                        <ValidationSummary/>    
+                    </div>
+        
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Name</label>
+                        <InputText class="form-control" id="name" @bind-Value="_rankModel.Name"></InputText>
+                    </div>
+        
+                    <div class="mb-3">
+                        <button disabled="@_rankSaving" type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </EditForm>
+            }
+            
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var rank in _ranks)
+                {
+                    <tr>
+                        <td>@rank.Name</td>
+                        <td>
+                            @* <button class="btn btn-primary me-2" @onclick="@(() => NavigateToGame(game.Id))">Edit</button> *@
+                            @if (rank.IsDeleted)
+                            {
+                                <button class="btn btn-secondary" @onclick="@(() => UndoDeleteRankAsync(rank))">Undo</button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-danger" @onclick="@(() => DeleteRankAsync(rank))">Delete</button>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
     
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Name</th>
-            <th></th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach (var rank in _ranks)
-        {
-            <tr>
-                <td>@rank.Name</td>
-                <td>
-                    @* <button class="btn btn-primary me-2" @onclick="@(() => NavigateToGame(game.Id))">Edit</button> *@
-                    @if (rank.IsDeleted)
-                    {
-                        <button class="btn btn-secondary" @onclick="@(() => UndoDeleteRankAsync(rank))">Undo</button>
-                    }
-                    else
-                    {
-                        <button class="btn btn-danger" @onclick="@(() => DeleteRankAsync(rank))">Delete</button>
-                    }
-                </td>
-            </tr>
-        }
-        </tbody>
-    </table>
+    
+    
+    
 }
 
 @code {
